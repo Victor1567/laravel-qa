@@ -34,10 +34,18 @@ class Answer extends Model
             // dd($answer->question);
             $answer->question->increment('answers_count');
             $answer->question->save();            
-        }); 
+        });
+        static::deleted(function ($answer){
+            $answer->question->decrement('answers_count');
+        });
     }
     public function getCreatedDateAttribute()
     {
         return $this->created_at->diffForHumans();
+    }
+
+    public function getStatusAttribute()
+    {
+        return $this->id === $this->question->best_answer_id ? 'vote-accepted' : '';
     }
 }
